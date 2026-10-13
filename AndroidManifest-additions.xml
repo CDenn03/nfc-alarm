@@ -1,0 +1,54 @@
+<!--
+  CONSOLIDATED manifest additions (Phases 1–4).
+  Merge into android/app/src/main/AndroidManifest.xml of your flutter-created
+  project: <uses-permission>/<uses-feature> go at the top level inside <manifest>;
+  the <receiver>/<service>/<activity> blocks go inside <application> alongside the
+  Flutter MainActivity that `flutter create` generated.
+
+  Replace com.example.nfcalarm everywhere with your applicationId.
+-->
+
+<!-- ===== permissions ===== -->
+<uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.VIBRATE" />
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<uses-permission android:name="android.permission.NFC" />
+
+<uses-feature android:name="android.hardware.nfc" android:required="false" />
+
+<!-- ===== components (inside <application>) ===== -->
+<receiver android:name=".core.AlarmReceiver" android:exported="false" />
+
+<receiver android:name=".core.BootReceiver" android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+        <action android:name="android.intent.action.TIME_SET" />
+        <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+    </intent-filter>
+</receiver>
+
+<service
+    android:name=".core.AlarmService"
+    android:exported="false"
+    android:foregroundServiceType="specialUse">
+    <property
+        android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+        android:value="alarm" />
+</service>
+
+<activity
+    android:name=".core.AlarmActivity"
+    android:exported="false"
+    android:showWhenLocked="true"
+    android:turnScreenOn="true"
+    android:excludeFromRecents="true"
+    android:launchMode="singleTask"
+    android:taskAffinity=""
+    android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />

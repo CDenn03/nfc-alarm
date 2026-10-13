@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Native ringing UI (Phase 4). No Flutter at fire time. Sections toggle by
+     visibility: tag-dismiss vs. simple button, plus a puzzle panel. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#101014"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="28dp">
+
+        <TextView
+            android:id="@+id/alarmTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:textColor="#FFFFFF"
+            android:textSize="64sp"
+            android:textStyle="bold"
+            android:text="07:00" />
+
+        <TextView
+            android:id="@+id/alarmLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#AAAAAA"
+            android:textSize="18sp"
+            android:text="Alarm" />
+
+        <!-- Tag-dismiss section -->
+        <LinearLayout
+            android:id="@+id/tagGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="40dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/progressText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:text="0 of 0 tags" />
+
+            <TextView
+                android:id="@+id/remainingText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:textColor="#C7C7CC"
+                android:textSize="16sp"
+                android:text="Tap: —" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:textColor="#8E8E93"
+                android:textSize="14sp"
+                android:text="Hold the phone to each tag" />
+        </LinearLayout>
+
+        <!-- Simple dismiss (no tags required) -->
+        <Button
+            android:id="@+id/dismissButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:paddingHorizontal="40dp"
+            android:text="Dismiss"
+            android:visibility="gone" />
+
+        <!-- Puzzle panel -->
+        <LinearLayout
+            android:id="@+id/puzzleGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="32dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/puzzleExpression"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:text="(0 + 0) - (0 × 0)" />
+
+            <EditText
+                android:id="@+id/puzzleAnswer"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:inputType="numberSigned"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#8E8E93"
+                android:hint="Answer"
+                android:importantForAutofill="no" />
+
+            <TextView
+                android:id="@+id/puzzleFeedback"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="#FF6B6B"
+                android:textSize="15sp"
+                android:text="" />
+
+            <Button
+                android:id="@+id/puzzleSubmit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:paddingHorizontal="32dp"
+                android:text="Submit" />
+
+            <Button
+                android:id="@+id/skipButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Skip for now"
+                android:visibility="gone"
+                style="?android:attr/borderlessButtonStyle" />
+        </LinearLayout>
+
+        <!-- Footer actions -->
+        <Button
+            android:id="@+id/puzzleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="Can't find your tags?"
+            android:visibility="gone"
+            style="?android:attr/borderlessButtonStyle" />
+
+        <Button
+            android:id="@+id/snoozeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Snooze"
+            android:visibility="gone"
+            style="?android:attr/borderlessButtonStyle" />
+
+    </LinearLayout>
+</ScrollView>
