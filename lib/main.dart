@@ -5,7 +5,9 @@ import 'providers/alarm_provider.dart';
 import 'providers/tag_provider.dart';
 import 'screens/alarm_list_screen.dart';
 import 'services/alarm_events.dart';
+import 'services/clock_format.dart';
 import 'services/native_channel.dart';
+import 'theme/nothing_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,14 +35,13 @@ class NfcAlarmApp extends StatelessWidget {
     return MaterialApp(
       title: 'NFC Alarm',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: const Color(0xFF5B6CFF),
-        brightness: Brightness.dark,
-        useMaterial3: true,
-      ),
-      home: AlarmListScreen(
-        alarmProvider: alarmProvider,
-        tagProvider: tagProvider,
+      theme: NothingTheme.light,
+      home: ValueListenableBuilder<bool?>(
+        valueListenable: clockFormatOverride,
+        builder: (context, _, _) => AlarmListScreen(
+          alarmProvider: alarmProvider,
+          tagProvider: tagProvider,
+        ),
       ),
     );
   }

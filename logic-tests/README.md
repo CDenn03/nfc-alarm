@@ -12,5 +12,10 @@ needed.
 
 Covers: puzzle expression == stated answer (200k cases), tag AND-logic,
 one-shot/recurring next-trigger + weekday mapping, the post-fire double-fire
-guard, and payload offset/hex round-trip incl. hardware-UID-bound HMAC verify
-and clone rejection. Last run: 400031 passed, 0 failed.
+guard, advanced recurrence (every-N-weeks phase, nth/last weekday of month,
+day-of-month with short-month skipping), and payload offset/hex round-trip incl.
+hardware-UID-bound HMAC verify and clone rejection.
+
+Note: the recurrence additions have not been executed by this harness (no
+kotlinc in the current environment). The same algorithm was verified via a
+structural Dart port covering every branch above.

@@ -27,6 +27,13 @@ class AlarmDto {
     required this.requiredTagIds,
     required this.allowSnooze,
     required this.snoozeMinutes,
+    required this.recurrenceKind,
+    required this.intervalWeeks,
+    required this.nthOfMonth,
+    required this.weekdayOfMonth,
+    required this.dayOfMonth,
+    required this.anchorEpochDay,
+    required this.skipDateEpochDay,
     this.soundUri,
   });
 
@@ -40,6 +47,20 @@ class AlarmDto {
   List<String?> requiredTagIds; // app-UUIDs; AND logic
   bool allowSnooze;
   int snoozeMinutes;
+
+  // Recurrence rule.
+  // 0 once, 1 weekly, 2 every N weeks, 3 nth weekday of month, 4 day of month.
+  int recurrenceKind;
+  int intervalWeeks; // kind 2; >= 1
+  int nthOfMonth; // kind 3; 1..5, or -1 for last
+  int weekdayOfMonth; // kind 3; 0..6, Monday-first
+  int dayOfMonth; // kind 4; 1..31
+  int anchorEpochDay; // kind 2 phase anchor; 0 = unset
+
+  /// Local epoch day of a single skipped occurrence ("off for today").
+  /// 0 = not skipping. The alarm stays enabled and resumes afterwards.
+  int skipDateEpochDay;
+
   String? soundUri;
 }
 
@@ -49,6 +70,14 @@ class SoundSelection {
   String displayName;
 }
 
+/// A sound available on the device, for the in-app browser.
+class SoundItemDto {
+  SoundItemDto({required this.uri, required this.title, required this.kind});
+  String uri;
+  String title;
+  int kind; // 0 alarm, 1 notification, 2 ringtone
+}
+
 @HostApi()
 abstract class AlarmHostApi {
   List<AlarmDto> getAlarms();
@@ -56,9 +85,19 @@ abstract class AlarmHostApi {
   void deleteAlarm(String id);
   void setEnabled(String id, bool enabled);
 
+  /// Skips exactly one upcoming occurrence, leaving the alarm enabled.
+  /// The native side resolves which date that is.
+  void skipNextOccurrence(String id);
+  void clearSkipNext(String id);
+
   @async
   SoundSelection? pickAlarmSound();
   String? displayNameForUri(String uri);
+
+  /// System ringtone/alarm/notification sounds. Needs no runtime permission.
+  List<SoundItemDto> listSounds();
+  void previewSound(String uri);
+  void stopSoundPreview();
 
   bool canScheduleExactAlarms();
   bool canUseFullScreenIntent();

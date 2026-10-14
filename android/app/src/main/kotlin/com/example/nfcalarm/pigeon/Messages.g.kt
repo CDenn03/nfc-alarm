@@ -59,6 +59,17 @@ data class AlarmDto (
   val requiredTagIds: List<String?>,
   val allowSnooze: Boolean,
   val snoozeMinutes: Long,
+  val recurrenceKind: Long,
+  val intervalWeeks: Long,
+  val nthOfMonth: Long,
+  val weekdayOfMonth: Long,
+  val dayOfMonth: Long,
+  val anchorEpochDay: Long,
+  /**
+   * Local epoch day of a single skipped occurrence ("off for today").
+   * 0 = not skipping. The alarm stays enabled and resumes afterwards.
+   */
+  val skipDateEpochDay: Long,
   val soundUri: String? = null
 )
  {
@@ -74,8 +85,15 @@ data class AlarmDto (
       val requiredTagIds = pigeonVar_list[7] as List<String?>
       val allowSnooze = pigeonVar_list[8] as Boolean
       val snoozeMinutes = pigeonVar_list[9] as Long
-      val soundUri = pigeonVar_list[10] as String?
-      return AlarmDto(id, hour, minute, repeatDays, enabled, vibrate, label, requiredTagIds, allowSnooze, snoozeMinutes, soundUri)
+      val recurrenceKind = pigeonVar_list[10] as Long
+      val intervalWeeks = pigeonVar_list[11] as Long
+      val nthOfMonth = pigeonVar_list[12] as Long
+      val weekdayOfMonth = pigeonVar_list[13] as Long
+      val dayOfMonth = pigeonVar_list[14] as Long
+      val anchorEpochDay = pigeonVar_list[15] as Long
+      val skipDateEpochDay = pigeonVar_list[16] as Long
+      val soundUri = pigeonVar_list[17] as String?
+      return AlarmDto(id, hour, minute, repeatDays, enabled, vibrate, label, requiredTagIds, allowSnooze, snoozeMinutes, recurrenceKind, intervalWeeks, nthOfMonth, weekdayOfMonth, dayOfMonth, anchorEpochDay, skipDateEpochDay, soundUri)
     }
   }
   fun toList(): List<Any?> {
@@ -90,6 +108,13 @@ data class AlarmDto (
       requiredTagIds,
       allowSnooze,
       snoozeMinutes,
+      recurrenceKind,
+      intervalWeeks,
+      nthOfMonth,
+      weekdayOfMonth,
+      dayOfMonth,
+      anchorEpochDay,
+      skipDateEpochDay,
       soundUri,
     )
   }
@@ -112,6 +137,34 @@ data class SoundSelection (
     return listOf(
       uri,
       displayName,
+    )
+  }
+}
+
+/**
+ * A sound available on the device, for the in-app browser.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class SoundItemDto (
+  val uri: String,
+  val title: String,
+  val kind: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): SoundItemDto {
+      val uri = pigeonVar_list[0] as String
+      val title = pigeonVar_list[1] as String
+      val kind = pigeonVar_list[2] as Long
+      return SoundItemDto(uri, title, kind)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      uri,
+      title,
+      kind,
     )
   }
 }
@@ -184,10 +237,15 @@ private object MessagesPigeonCodec : StandardMessageCodec() {
       }
       131.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          NfcTagDto.fromList(it)
+          SoundItemDto.fromList(it)
         }
       }
       132.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          NfcTagDto.fromList(it)
+        }
+      }
+      133.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           NfcScanResult.fromList(it)
         }
@@ -205,12 +263,16 @@ private object MessagesPigeonCodec : StandardMessageCodec() {
         stream.write(130)
         writeValue(stream, value.toList())
       }
-      is NfcTagDto -> {
+      is SoundItemDto -> {
         stream.write(131)
         writeValue(stream, value.toList())
       }
-      is NfcScanResult -> {
+      is NfcTagDto -> {
         stream.write(132)
+        writeValue(stream, value.toList())
+      }
+      is NfcScanResult -> {
+        stream.write(133)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -225,8 +287,18 @@ interface AlarmHostApi {
   fun upsertAlarm(alarm: AlarmDto)
   fun deleteAlarm(id: String)
   fun setEnabled(id: String, enabled: Boolean)
+  /**
+   * Skips exactly one upcoming occurrence, leaving the alarm enabled.
+   * The native side resolves which date that is.
+   */
+  fun skipNextOccurrence(id: String)
+  fun clearSkipNext(id: String)
   fun pickAlarmSound(callback: (Result<SoundSelection?>) -> Unit)
   fun displayNameForUri(uri: String): String?
+  /** System ringtone/alarm/notification sounds. Needs no runtime permission. */
+  fun listSounds(): List<SoundItemDto>
+  fun previewSound(uri: String)
+  fun stopSoundPreview()
   fun canScheduleExactAlarms(): Boolean
   fun canUseFullScreenIntent(): Boolean
   fun openExactAlarmSettings()
@@ -315,6 +387,42 @@ interface AlarmHostApi {
         }
       }
       run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.nfc_alarm.AlarmHostApi.skipNextOccurrence$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              api.skipNextOccurrence(idArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.nfc_alarm.AlarmHostApi.clearSkipNext$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              api.clearSkipNext(idArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.nfc_alarm.AlarmHostApi.pickAlarmSound$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
@@ -340,6 +448,55 @@ interface AlarmHostApi {
             val uriArg = args[0] as String
             val wrapped: List<Any?> = try {
               listOf(api.displayNameForUri(uriArg))
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.nfc_alarm.AlarmHostApi.listSounds$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.listSounds())
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.nfc_alarm.AlarmHostApi.previewSound$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val uriArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              api.previewSound(uriArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.nfc_alarm.AlarmHostApi.stopSoundPreview$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.stopSoundPreview()
+              listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
             }

@@ -41,6 +41,13 @@ class AlarmDto {
     required this.requiredTagIds,
     required this.allowSnooze,
     required this.snoozeMinutes,
+    required this.recurrenceKind,
+    required this.intervalWeeks,
+    required this.nthOfMonth,
+    required this.weekdayOfMonth,
+    required this.dayOfMonth,
+    required this.anchorEpochDay,
+    required this.skipDateEpochDay,
     this.soundUri,
   });
 
@@ -64,6 +71,22 @@ class AlarmDto {
 
   int snoozeMinutes;
 
+  int recurrenceKind;
+
+  int intervalWeeks;
+
+  int nthOfMonth;
+
+  int weekdayOfMonth;
+
+  int dayOfMonth;
+
+  int anchorEpochDay;
+
+  /// Local epoch day of a single skipped occurrence ("off for today").
+  /// 0 = not skipping. The alarm stays enabled and resumes afterwards.
+  int skipDateEpochDay;
+
   String? soundUri;
 
   Object encode() {
@@ -78,6 +101,13 @@ class AlarmDto {
       requiredTagIds,
       allowSnooze,
       snoozeMinutes,
+      recurrenceKind,
+      intervalWeeks,
+      nthOfMonth,
+      weekdayOfMonth,
+      dayOfMonth,
+      anchorEpochDay,
+      skipDateEpochDay,
       soundUri,
     ];
   }
@@ -95,7 +125,14 @@ class AlarmDto {
       requiredTagIds: (result[7] as List<Object?>?)!.cast<String?>(),
       allowSnooze: result[8]! as bool,
       snoozeMinutes: result[9]! as int,
-      soundUri: result[10] as String?,
+      recurrenceKind: result[10]! as int,
+      intervalWeeks: result[11]! as int,
+      nthOfMonth: result[12]! as int,
+      weekdayOfMonth: result[13]! as int,
+      dayOfMonth: result[14]! as int,
+      anchorEpochDay: result[15]! as int,
+      skipDateEpochDay: result[16]! as int,
+      soundUri: result[17] as String?,
     );
   }
 }
@@ -116,6 +153,30 @@ class SoundSelection {
     return SoundSelection(
       uri: result[0]! as String,
       displayName: result[1]! as String,
+    );
+  }
+}
+
+/// A sound available on the device, for the in-app browser.
+class SoundItemDto {
+  SoundItemDto({required this.uri, required this.title, required this.kind});
+
+  String uri;
+
+  String title;
+
+  int kind;
+
+  Object encode() {
+    return <Object?>[uri, title, kind];
+  }
+
+  static SoundItemDto decode(Object result) {
+    result as List<Object?>;
+    return SoundItemDto(
+      uri: result[0]! as String,
+      title: result[1]! as String,
+      kind: result[2]! as int,
     );
   }
 }
@@ -195,11 +256,14 @@ class _PigeonCodec extends StandardMessageCodec {
     } else if (value is SoundSelection) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is NfcTagDto) {
+    } else if (value is SoundItemDto) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is NfcScanResult) {
+    } else if (value is NfcTagDto) {
       buffer.putUint8(132);
+      writeValue(buffer, value.encode());
+    } else if (value is NfcScanResult) {
+      buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -214,8 +278,10 @@ class _PigeonCodec extends StandardMessageCodec {
       case 130:
         return SoundSelection.decode(readValue(buffer)!);
       case 131:
-        return NfcTagDto.decode(readValue(buffer)!);
+        return SoundItemDto.decode(readValue(buffer)!);
       case 132:
+        return NfcTagDto.decode(readValue(buffer)!);
+      case 133:
         return NfcScanResult.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -341,6 +407,56 @@ class AlarmHostApi {
     }
   }
 
+  /// Skips exactly one upcoming occurrence, leaving the alarm enabled.
+  /// The native side resolves which date that is.
+  Future<void> skipNextOccurrence(String id) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.skipNextOccurrence$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+          pigeonVar_channelName,
+          pigeonChannelCodec,
+          binaryMessenger: pigeonVar_binaryMessenger,
+        );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[id]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> clearSkipNext(String id) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.clearSkipNext$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+          pigeonVar_channelName,
+          pigeonChannelCodec,
+          binaryMessenger: pigeonVar_binaryMessenger,
+        );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[id]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
   Future<SoundSelection?> pickAlarmSound() async {
     final String pigeonVar_channelName =
         'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.pickAlarmSound$pigeonVar_messageChannelSuffix';
@@ -386,6 +502,84 @@ class AlarmHostApi {
       );
     } else {
       return (pigeonVar_replyList[0] as String?);
+    }
+  }
+
+  /// System ringtone/alarm/notification sounds. Needs no runtime permission.
+  Future<List<SoundItemDto?>> listSounds() async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.listSounds$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+          pigeonVar_channelName,
+          pigeonChannelCodec,
+          binaryMessenger: pigeonVar_binaryMessenger,
+        );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(null) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as List<Object?>?)!.cast<SoundItemDto?>();
+    }
+  }
+
+  Future<void> previewSound(String uri) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.previewSound$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+          pigeonVar_channelName,
+          pigeonChannelCodec,
+          binaryMessenger: pigeonVar_binaryMessenger,
+        );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[uri]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> stopSoundPreview() async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.stopSoundPreview$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+          pigeonVar_channelName,
+          pigeonChannelCodec,
+          binaryMessenger: pigeonVar_binaryMessenger,
+        );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(null) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
     }
   }
 

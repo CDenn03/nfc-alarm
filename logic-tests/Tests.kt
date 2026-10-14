@@ -102,6 +102,68 @@ fun main() {
     }
     check("control: no-lead would double-fire today 22", nextNoLead.get(Calendar.DAY_OF_MONTH)==22)
 
+    // ---------- Scheduler: advanced recurrence ----------
+    // Every 2 weeks on Mondays, anchored to Mon 17 Aug 2026 (an "on" week).
+    val biweekly = TAlarm(7,0, List(7){ it==0 },
+        recurrenceKind = TAlarm.KIND_EVERY_N_WEEKS, intervalWeeks = 2,
+        anchorEpochDay = java.time.LocalDate.of(2026,8,17).toEpochDay())
+    val tb1 = SchedulerLogic.nextTriggerMillis(biweekly, now)!!
+    val cb1 = Calendar.getInstance().apply { timeInMillis = tb1 }
+    check("every-2-weeks Monday is a Monday", cb1.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY)
+    val tb2 = SchedulerLogic.nextTriggerMillis(biweekly,
+        Calendar.getInstance().apply { timeInMillis = tb1 + 60_000L })!!
+    check("every-2-weeks spacing is 14 days", (tb2 - tb1) / 86_400_000L == 14L)
+
+    // Every day should never be more than one day out.
+    val everyDay = TAlarm(7,0, List(7){true})
+    val ted = Calendar.getInstance().apply {
+        timeInMillis = SchedulerLogic.nextTriggerMillis(everyDay, now)!!
+    }
+    check("every-day from Sat 10:00 -> Sun 23", ted.get(Calendar.DAY_OF_MONTH)==23)
+
+    // 1st Monday of the month.
+    val firstMonday = TAlarm(7,0, List(7){false},
+        recurrenceKind = TAlarm.KIND_MONTHLY_NTH_WEEKDAY, nthOfMonth = 1, weekdayOfMonth = 0)
+    val cfm = Calendar.getInstance().apply {
+        timeInMillis = SchedulerLogic.nextTriggerMillis(firstMonday, now)!!
+    }
+    check("1st Monday is a Monday in days 1..7",
+        cfm.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY && cfm.get(Calendar.DAY_OF_MONTH) in 1..7)
+
+    // Last Friday of the month.
+    val lastFriday = TAlarm(7,0, List(7){false},
+        recurrenceKind = TAlarm.KIND_MONTHLY_NTH_WEEKDAY,
+        nthOfMonth = TAlarm.LAST_WEEK_OF_MONTH, weekdayOfMonth = 4)
+    val clf = Calendar.getInstance().apply {
+        timeInMillis = SchedulerLogic.nextTriggerMillis(lastFriday, now)!!
+    }
+    check("last Friday is a Friday in the final week",
+        clf.get(Calendar.DAY_OF_WEEK)==Calendar.FRIDAY &&
+            clf.get(Calendar.DAY_OF_MONTH) > clf.getActualMaximum(Calendar.DAY_OF_MONTH) - 7)
+
+    // Day 31 must only land in 31-day months, walking a full year.
+    val day31 = TAlarm(7,0, List(7){false},
+        recurrenceKind = TAlarm.KIND_MONTHLY_DAY_OF_MONTH, dayOfMonth = 31)
+    var probe = cal(2026,0,1,9,0)
+    var day31Ok = true
+    repeat(12) {
+        val c = Calendar.getInstance().apply {
+            timeInMillis = SchedulerLogic.nextTriggerMillis(day31, probe)!!
+        }
+        if (c.get(Calendar.DAY_OF_MONTH) != 31) day31Ok = false
+        probe = Calendar.getInstance().apply { timeInMillis = c.timeInMillis + 60_000L }
+    }
+    check("day-31 only lands in 31-day months (12 hops)", day31Ok)
+
+    // 5th Monday exists only in some months; the search must skip the others.
+    val fifthMonday = TAlarm(7,0, List(7){false},
+        recurrenceKind = TAlarm.KIND_MONTHLY_NTH_WEEKDAY, nthOfMonth = 5, weekdayOfMonth = 0)
+    val c5 = Calendar.getInstance().apply {
+        timeInMillis = SchedulerLogic.nextTriggerMillis(fifthMonday, now)!!
+    }
+    check("5th Monday is a Monday on day >= 29",
+        c5.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY && c5.get(Calendar.DAY_OF_MONTH) >= 29)
+
     // ---------- Payload: offsets + page math + hex round trip ----------
     check("offsets sum to TOTAL_LEN",
         PayloadLogic.MAGIC.size + PayloadLogic.UUID_LEN + PayloadLogic.HMAC_LEN + 12 == PayloadLogic.TOTAL_LEN)

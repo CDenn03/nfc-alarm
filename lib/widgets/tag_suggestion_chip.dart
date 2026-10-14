@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/nfc_tag.dart';
+import 'nothing_ui.dart';
 
 class TagSuggestionChip extends StatelessWidget {
   const TagSuggestionChip({
@@ -16,10 +17,13 @@ class TagSuggestionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(location.label),
+    return NothingChoicePill(
+      label: location.label,
       selected: selected,
-      onSelected: (_) => onTap(),
+      onTap: onTap,
+      icon: location.type == 'custom'
+          ? Icons.edit_outlined
+          : Icons.place_outlined,
     );
   }
 }
