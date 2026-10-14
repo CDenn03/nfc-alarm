@@ -5,8 +5,8 @@ Standalone Kotlin that exercises the framework-free algorithms verbatim
 and PayloadLogic mirror AlarmScheduler/NfcManager line-for-line). No Android SDK
 needed.
 
-    kotlinc *.kt ../android/app/src/main/kotlin/com/example/nfcalarm/core/MathPuzzle.kt \
-            ../android/app/src/main/kotlin/com/example/nfcalarm/core/AlarmSession.kt \
+    kotlinc *.kt ../android/app/src/main/kotlin/dev/cdenn/nearfield/core/MathPuzzle.kt \
+            ../android/app/src/main/kotlin/dev/cdenn/nearfield/core/AlarmSession.kt \
             -include-runtime -d test.jar
     java -jar test.jar
 

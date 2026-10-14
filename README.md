@@ -1,4 +1,4 @@
-# NFC Alarm
+# Near Field
 
 Android-only Flutter alarm clock with NFC-tag dismissal. Flutter owns alarm and tag configuration; Android owns persistence, exact scheduling, reboot recovery, and the full-screen ringing flow.
 
@@ -17,7 +17,7 @@ flutter analyze
 flutter run
 ```
 
-Pigeon generates the typed Flutter/Android bridge at `lib/pigeon/messages.g.dart` and `android/app/src/main/kotlin/com/example/nfcalarm/pigeon/Messages.g.kt`. Re-run it whenever `pigeons/messages.dart` changes.
+Pigeon generates the typed Flutter/Android bridge at `lib/pigeon/messages.g.dart` and `android/app/src/main/kotlin/dev/cdenn/nearfield/pigeon/Messages.g.kt`. Re-run it whenever `pigeons/messages.dart` changes.
 
 ## Structure
 
@@ -25,11 +25,11 @@ Pigeon generates the typed Flutter/Android bridge at `lib/pigeon/messages.g.dart
 - `lib/screens/` contains UI and local form state.
 - `lib/providers/` contains `ChangeNotifier` UI state and user actions.
 - `lib/services/native_channel.dart` is the sole Dart adapter over generated Pigeon APIs.
-- `android/app/src/main/kotlin/com/example/nfcalarm/core/` owns alarm lifecycle and NFC operations.
-- `android/app/src/main/kotlin/com/example/nfcalarm/data/` owns Android persistence.
+- `android/app/src/main/kotlin/dev/cdenn/nearfield/core/` owns alarm lifecycle and NFC operations.
+- `android/app/src/main/kotlin/dev/cdenn/nearfield/data/` owns Android persistence.
 - `pigeons/messages.dart` defines the cross-platform contract.
 
-The app deliberately avoids a state-management or dependency-injection package. Constructor injection and `ListenableBuilder` are sufficient for this app’s small state surface.
+The app deliberately avoids a state-management or dependency-injection package. Constructor injection and `ListenableBuilder` are sufficient for this app's small state surface.
 
 ## Validate on a device
 
