@@ -33,7 +33,7 @@ class NfcAlarmApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'NFC Alarm',
+      title: 'Near Field',
       debugShowCheckedModeBanner: false,
       theme: NothingTheme.light,
       home: ValueListenableBuilder<bool?>(

@@ -1,5 +1,5 @@
-name: nfc_alarm
-description: Android NFC alarm clock with native alarm reliability and Flutter configuration UI.
+name: near_field
+description: Wake up and prove you're up. Alarm clock that dismisses only when you tap your NFC tag.
 publish_to: none
 version: 1.0.0+1
 
