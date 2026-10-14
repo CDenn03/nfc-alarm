@@ -299,6 +299,9 @@ interface AlarmHostApi {
   fun listSounds(): List<SoundItemDto>
   fun previewSound(uri: String)
   fun stopSoundPreview()
+  /** Test vibration with the given pattern code (0=standard, 1=gentle, 2=strong, 3=heartbeat). */
+  fun testVibration(patternCode: Long)
+  fun stopVibration()
   fun canScheduleExactAlarms(): Boolean
   fun canUseFullScreenIntent(): Boolean
   fun openExactAlarmSettings()
@@ -496,6 +499,40 @@ interface AlarmHostApi {
           channel.setMessageHandler { _, reply ->
             val wrapped: List<Any?> = try {
               api.stopSoundPreview()
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.near_field.AlarmHostApi.testVibration$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val patternCodeArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.testVibration(patternCodeArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.near_field.AlarmHostApi.stopVibration$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.stopVibration()
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)

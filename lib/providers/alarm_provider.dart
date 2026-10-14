@@ -68,6 +68,11 @@ class AlarmProvider extends ChangeNotifier {
       _channel.setPreviewVolume(volume);
   
   Future<void> stopSoundPreview() => _channel.stopSoundPreview();
+  
+  Future<void> testVibration(VibrationPattern pattern) => 
+      _channel.testVibration(pattern);
+  
+  Future<void> stopVibration() => _channel.stopVibration();
 
   Future<void> save(Alarm alarm) async {
     await _channel.upsert(alarm);

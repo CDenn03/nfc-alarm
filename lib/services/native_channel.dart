@@ -60,6 +60,12 @@ class NativeChannel {
   }
   
   Future<void> stopSoundPreview() => _alarm.stopSoundPreview();
+  
+  /// Test vibration with the given pattern.
+  Future<void> testVibration(VibrationPattern pattern) => 
+      _alarm.testVibration(pattern.index);
+  
+  Future<void> stopVibration() => _alarm.stopVibration();
 
   Future<bool> canScheduleExact() => _alarm.canScheduleExactAlarms();
   Future<bool> canUseFullScreenIntent() => _alarm.canUseFullScreenIntent();

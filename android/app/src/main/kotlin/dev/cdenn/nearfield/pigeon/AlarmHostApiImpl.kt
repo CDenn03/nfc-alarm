@@ -8,6 +8,7 @@ import android.os.Build
 import android.provider.OpenableColumns
 import android.provider.Settings
 import dev.cdenn.nearfield.core.AlarmScheduler
+import dev.cdenn.nearfield.core.VibrationTester
 import dev.cdenn.nearfield.data.AlarmStore
 import dev.cdenn.nearfield.data.SoundLibrary
 import dev.cdenn.nearfield.model.Alarm
@@ -23,6 +24,7 @@ class AlarmHostApiImpl(
     private val store = AlarmStore(context)
     private val scheduler = AlarmScheduler(context)
     private val sounds = SoundLibrary(context)
+    private val vibrator = VibrationTester(context)
 
     override fun getAlarms(): List<AlarmDto> = store.getAll().map { it.toDto() }
 
@@ -81,6 +83,10 @@ class AlarmHostApiImpl(
     override fun previewSound(uri: String) = sounds.preview(uri)
 
     override fun stopSoundPreview() = sounds.stopPreview()
+    
+    override fun testVibration(patternCode: Long) = vibrator.test(patternCode.toInt())
+    
+    override fun stopVibration() = vibrator.stop()
 
     override fun canScheduleExactAlarms(): Boolean = scheduler.canScheduleExact()
 

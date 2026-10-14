@@ -50,6 +50,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen>
 
   late VibrationPattern _vibrationPattern;
   late double _vibrationIntensity;
+  bool _isTestingVibration = false;
 
   late Set<String> _requiredTagIds;
   late bool _allowSnooze;
@@ -113,6 +114,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen>
   void dispose() {
     _labelController.dispose();
     _entranceController.dispose();
+    widget.provider.stopVibration();
     super.dispose();
   }
 
@@ -174,6 +176,25 @@ class _AlarmEditScreenState extends State<AlarmEditScreen>
         _soundStartPosition = 0.0;
         _soundEndPosition = 1.0;
       });
+
+  Future<void> _toggleVibrationTest() async {
+    if (_isTestingVibration) {
+      await widget.provider.stopVibration();
+      if (!mounted) return;
+      setState(() => _isTestingVibration = false);
+    } else {
+      await widget.provider.testVibration(_vibrationPattern);
+      if (!mounted) return;
+      setState(() => _isTestingVibration = true);
+      // Auto-stop after 3 seconds
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted && _isTestingVibration) {
+          widget.provider.stopVibration();
+          setState(() => _isTestingVibration = false);
+        }
+      });
+    }
+  }
 
   void _save() {
     // Every-N-weeks needs a phase anchor; anchor to today on first save.
@@ -593,6 +614,31 @@ class _AlarmEditScreenState extends State<AlarmEditScreen>
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Test vibration button
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _toggleVibrationTest,
+                          icon: Icon(
+                            _isTestingVibration ? Icons.stop : Icons.vibration,
+                            size: 18,
+                          ),
+                          label: Text(
+                            _isTestingVibration ? 'STOP TEST' : 'TEST VIBRATION',
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _isTestingVibration 
+                                ? NothingColors.red 
+                                : NothingColors.ink,
+                            side: BorderSide(
+                              color: _isTestingVibration 
+                                  ? NothingColors.red 
+                                  : NothingColors.outline,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ],

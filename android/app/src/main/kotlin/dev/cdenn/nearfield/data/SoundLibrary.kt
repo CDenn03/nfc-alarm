@@ -2,9 +2,12 @@ package dev.cdenn.nearfield.data
 
 import android.content.Context
 import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.media.Ringtone
 import android.media.RingtoneManager
 import android.net.Uri
+import android.util.Log
 
 /** A selectable device sound. [kind] is 0 alarm, 1 notification, 2 ringtone. */
 data class SoundItem(val uri: String, val title: String, val kind: Int)
@@ -19,7 +22,7 @@ data class SoundItem(val uri: String, val title: String, val kind: Int)
 class SoundLibrary(context: Context) {
 
     private val appContext = context.applicationContext
-    private var preview: Ringtone? = null
+    private var previewPlayer: MediaPlayer? = null
 
     fun list(): List<SoundItem> {
         val items = mutableListOf<SoundItem>()
@@ -43,34 +46,62 @@ class SoundLibrary(context: Context) {
                         if (seenUris.add(uri)) items += SoundItem(uri, title, kind)
                     }
                 }
+            }.onFailure { e ->
+                Log.w(TAG, "Failed to enumerate sounds for type $ringtoneType", e)
             }
         }
         return items
     }
 
     /**
-     * Plays a short preview using alarm attributes so it is audible at the same
-     * volume the alarm will use. Any previous preview is stopped first.
+     * Plays a preview using MediaPlayer with alarm stream for reliable playback.
+     * Any previous preview is stopped first.
      */
     fun preview(uri: String) {
         stopPreview()
-        runCatching {
-            val ringtone = RingtoneManager.getRingtone(appContext, Uri.parse(uri)) ?: return
-            ringtone.audioAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ALARM)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build()
-            ringtone.play()
-            preview = ringtone
+        try {
+            val player = MediaPlayer().apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                setDataSource(appContext, Uri.parse(uri))
+                isLooping = true
+                prepareAsync()
+                setOnPreparedListener { mp ->
+                    mp.start()
+                    Log.d(TAG, "Preview started for: $uri")
+                }
+                setOnErrorListener { _, what, extra ->
+                    Log.e(TAG, "MediaPlayer error: what=$what, extra=$extra")
+                    true
+                }
+            }
+            previewPlayer = player
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start preview for: $uri", e)
         }
     }
 
     fun stopPreview() {
-        runCatching { preview?.takeIf { it.isPlaying }?.stop() }
-        preview = null
+        previewPlayer?.let { player ->
+            try {
+                if (player.isPlaying) {
+                    player.stop()
+                }
+                player.release()
+                Log.d(TAG, "Preview stopped")
+            } catch (e: Exception) {
+                Log.w(TAG, "Error stopping preview", e)
+            }
+        }
+        previewPlayer = null
     }
 
     private companion object {
+        const val TAG = "SoundLibrary"
         val TYPES = listOf(
             RingtoneManager.TYPE_ALARM to 0,
             RingtoneManager.TYPE_NOTIFICATION to 1,

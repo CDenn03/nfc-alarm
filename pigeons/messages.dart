@@ -98,6 +98,10 @@ abstract class AlarmHostApi {
   List<SoundItemDto> listSounds();
   void previewSound(String uri);
   void stopSoundPreview();
+  
+  /// Test vibration with the given pattern code (0=standard, 1=gentle, 2=strong, 3=heartbeat).
+  void testVibration(int patternCode);
+  void stopVibration();
 
   bool canScheduleExactAlarms();
   bool canUseFullScreenIntent();
