@@ -98,7 +98,7 @@ class AlarmStore(context: Context) {
     }
 
     private companion object {
-        const val PREFS = "nfc_alarm_store"
+        const val PREFS = "near_field_store"
         const val KEY = "alarms_json"
 
         /** 1 = original weekday-only rows, 2 = adds recurrence rules. */

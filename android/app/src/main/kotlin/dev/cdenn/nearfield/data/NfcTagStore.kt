@@ -66,7 +66,7 @@ class NfcTagStore(context: Context) {
     )
 
     private companion object {
-        const val PREFS = "nfc_tag_store"
+        const val PREFS = "near_field_tag_store"
         const val KEY = "tags_json"
     }
 }

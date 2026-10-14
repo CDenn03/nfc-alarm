@@ -18,7 +18,7 @@ import javax.crypto.SecretKey
 object SecurityManager {
 
     private const val KEYSTORE = "AndroidKeyStore"
-    private const val ALIAS = "nfc_alarm_hmac_v1"
+    private const val ALIAS = "near_field_hmac_v1"
 
     fun hmac(data: ByteArray): ByteArray {
         val mac = Mac.getInstance("HmacSHA256")

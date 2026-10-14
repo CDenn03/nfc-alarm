@@ -1,7 +1,7 @@
 package dev.cdenn.nearfield.core
 
 object AlarmConstants {
-    const val CHANNEL_ID = "nfc_alarm_active"
+    const val CHANNEL_ID = "near_field_active"
     const val CHANNEL_NAME = "Active alarm"
     const val FOREGROUND_NOTIFICATION_ID = 42
 

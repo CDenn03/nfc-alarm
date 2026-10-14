@@ -2,7 +2,7 @@ package dev.cdenn.nearfield.core
 import java.security.SecureRandom
 
 object PayloadLogic {
-    val MAGIC = "ALM1".toByteArray(Charsets.US_ASCII)
+    val MAGIC = "NFLD".toByteArray(Charsets.US_ASCII)
     const val START_PAGE = 4; const val PAGE_SIZE = 4; const val READ_BLOCK = 16
     const val MAGIC_OFFSET = 0; const val UUID_OFFSET = 4; const val UUID_LEN = 16
     const val HMAC_OFFSET = 20; const val HMAC_LEN = 32; const val TOTAL_LEN = 64

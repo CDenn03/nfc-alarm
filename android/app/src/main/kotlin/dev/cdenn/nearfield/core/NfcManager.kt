@@ -9,7 +9,7 @@ import java.security.SecureRandom
  * Reads/writes the encrypted alarm payload on NTAG215 (MIFARE Ultralight) tags.
  *
  * Payload layout (64 bytes, on user-memory pages 4..19; each page = 4 bytes):
- *   page 4        magic  "ALM1"              (4 bytes)
+ *   page 4        magic  "NFLD"              (4 bytes)
  *   pages 5..8    app UUID                    (16 bytes, random per tag)
  *   pages 9..16   HMAC-SHA256(hwUID ‖ UUID)   (32 bytes)
  *   pages 17..19  reserved (zero)             (12 bytes)  — future alarm-id binding
@@ -128,7 +128,7 @@ class NfcManager {
         ByteArray(length / 2) { substring(it * 2, it * 2 + 2).toInt(16).toByte() }
 
     private companion object {
-        val MAGIC = "ALM1".toByteArray(Charsets.US_ASCII)
+        val MAGIC = "NFLD".toByteArray(Charsets.US_ASCII)
 
         const val START_PAGE = 4
         const val PAGE_SIZE = 4
