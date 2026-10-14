@@ -15,11 +15,7 @@ PlatformException _createConnectionError(String channelName) {
   );
 }
 
-List<Object?> wrapResponse({
-  Object? result,
-  PlatformException? error,
-  bool empty = false,
-}) {
+List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
   if (empty) {
     return <Object?>[];
   }
@@ -138,14 +134,20 @@ class AlarmDto {
 }
 
 class SoundSelection {
-  SoundSelection({required this.uri, required this.displayName});
+  SoundSelection({
+    required this.uri,
+    required this.displayName,
+  });
 
   String uri;
 
   String displayName;
 
   Object encode() {
-    return <Object?>[uri, displayName];
+    return <Object?>[
+      uri,
+      displayName,
+    ];
   }
 
   static SoundSelection decode(Object result) {
@@ -159,7 +161,11 @@ class SoundSelection {
 
 /// A sound available on the device, for the in-app browser.
 class SoundItemDto {
-  SoundItemDto({required this.uri, required this.title, required this.kind});
+  SoundItemDto({
+    required this.uri,
+    required this.title,
+    required this.kind,
+  });
 
   String uri;
 
@@ -168,7 +174,11 @@ class SoundItemDto {
   int kind;
 
   Object encode() {
-    return <Object?>[uri, title, kind];
+    return <Object?>[
+      uri,
+      title,
+      kind,
+    ];
   }
 
   static SoundItemDto decode(Object result) {
@@ -198,7 +208,12 @@ class NfcTagDto {
   String? locationType;
 
   Object encode() {
-    return <Object?>[uuid, registeredAt, name, locationType];
+    return <Object?>[
+      uuid,
+      registeredAt,
+      name,
+      locationType,
+    ];
   }
 
   static NfcTagDto decode(Object result) {
@@ -229,7 +244,12 @@ class NfcScanResult {
   String? errorMessage;
 
   Object encode() {
-    return <Object?>[valid, alreadyRegistered, uuid, errorMessage];
+    return <Object?>[
+      valid,
+      alreadyRegistered,
+      uuid,
+      errorMessage,
+    ];
   }
 
   static NfcScanResult decode(Object result) {
@@ -243,6 +263,7 @@ class NfcScanResult {
   }
 }
 
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -250,19 +271,19 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is AlarmDto) {
+    }    else if (value is AlarmDto) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is SoundSelection) {
+    }    else if (value is SoundSelection) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is SoundItemDto) {
+    }    else if (value is SoundItemDto) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is NfcTagDto) {
+    }    else if (value is NfcTagDto) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is NfcScanResult) {
+    }    else if (value is NfcScanResult) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else {
@@ -273,15 +294,15 @@ class _PigeonCodec extends StandardMessageCodec {
   @override
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
-      case 129:
+      case 129: 
         return AlarmDto.decode(readValue(buffer)!);
-      case 130:
+      case 130: 
         return SoundSelection.decode(readValue(buffer)!);
-      case 131:
+      case 131: 
         return SoundItemDto.decode(readValue(buffer)!);
-      case 132:
+      case 132: 
         return NfcTagDto.decode(readValue(buffer)!);
-      case 133:
+      case 133: 
         return NfcScanResult.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -293,13 +314,9 @@ class AlarmHostApi {
   /// Constructor for [AlarmHostApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  AlarmHostApi({
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) : pigeonVar_binaryMessenger = binaryMessenger,
-       pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
-           ? '.$messageChannelSuffix'
-           : '';
+  AlarmHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -307,14 +324,12 @@ class AlarmHostApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<List<AlarmDto?>> getAlarms() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.getAlarms$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.getAlarms$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -336,14 +351,12 @@ class AlarmHostApi {
   }
 
   Future<void> upsertAlarm(AlarmDto alarm) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.upsertAlarm$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.upsertAlarm$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[alarm]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -360,14 +373,12 @@ class AlarmHostApi {
   }
 
   Future<void> deleteAlarm(String id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.deleteAlarm$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.deleteAlarm$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[id]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -384,14 +395,12 @@ class AlarmHostApi {
   }
 
   Future<void> setEnabled(String id, bool enabled) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.setEnabled$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.setEnabled$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[id, enabled]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -410,14 +419,12 @@ class AlarmHostApi {
   /// Skips exactly one upcoming occurrence, leaving the alarm enabled.
   /// The native side resolves which date that is.
   Future<void> skipNextOccurrence(String id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.skipNextOccurrence$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.skipNextOccurrence$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[id]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -434,14 +441,12 @@ class AlarmHostApi {
   }
 
   Future<void> clearSkipNext(String id) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.clearSkipNext$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.clearSkipNext$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[id]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -458,14 +463,12 @@ class AlarmHostApi {
   }
 
   Future<SoundSelection?> pickAlarmSound() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.pickAlarmSound$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.pickAlarmSound$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -482,14 +485,12 @@ class AlarmHostApi {
   }
 
   Future<String?> displayNameForUri(String uri) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.displayNameForUri$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.displayNameForUri$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[uri]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -507,14 +508,12 @@ class AlarmHostApi {
 
   /// System ringtone/alarm/notification sounds. Needs no runtime permission.
   Future<List<SoundItemDto?>> listSounds() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.listSounds$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.listSounds$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -536,14 +535,12 @@ class AlarmHostApi {
   }
 
   Future<void> previewSound(String uri) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.previewSound$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.previewSound$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[uri]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -560,14 +557,12 @@ class AlarmHostApi {
   }
 
   Future<void> stopSoundPreview() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.stopSoundPreview$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.stopSoundPreview$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -584,14 +579,12 @@ class AlarmHostApi {
   }
 
   Future<bool> canScheduleExactAlarms() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.canScheduleExactAlarms$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.canScheduleExactAlarms$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -613,14 +606,12 @@ class AlarmHostApi {
   }
 
   Future<bool> canUseFullScreenIntent() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.canUseFullScreenIntent$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.canUseFullScreenIntent$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -642,14 +633,12 @@ class AlarmHostApi {
   }
 
   Future<void> openExactAlarmSettings() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.openExactAlarmSettings$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.openExactAlarmSettings$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -666,14 +655,12 @@ class AlarmHostApi {
   }
 
   Future<void> openFullScreenIntentSettings() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.openFullScreenIntentSettings$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.openFullScreenIntentSettings$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -690,14 +677,12 @@ class AlarmHostApi {
   }
 
   Future<bool> ensureNotificationPermission() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.ensureNotificationPermission$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.ensureNotificationPermission$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -719,14 +704,12 @@ class AlarmHostApi {
   }
 
   Future<void> openNotificationSettings() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.openNotificationSettings$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.openNotificationSettings$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -743,14 +726,12 @@ class AlarmHostApi {
   }
 
   Future<String> ping(String message) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.AlarmHostApi.ping$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.AlarmHostApi.ping$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[message]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -776,13 +757,9 @@ class NfcHostApi {
   /// Constructor for [NfcHostApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  NfcHostApi({
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) : pigeonVar_binaryMessenger = binaryMessenger,
-       pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
-           ? '.$messageChannelSuffix'
-           : '';
+  NfcHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -790,14 +767,12 @@ class NfcHostApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<int> nfcAvailability() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.NfcHostApi.nfcAvailability$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.NfcHostApi.nfcAvailability$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -819,14 +794,12 @@ class NfcHostApi {
   }
 
   Future<void> openNfcSettings() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.NfcHostApi.openNfcSettings$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.NfcHostApi.openNfcSettings$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -842,21 +815,15 @@ class NfcHostApi {
     }
   }
 
-  Future<NfcTagDto> beginTagRegistration(
-    String? name,
-    String? locationType,
-  ) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.NfcHostApi.beginTagRegistration$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
-    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel.send(
-      <Object?>[name, locationType],
-    ) as List<Object?>?;
+  Future<NfcTagDto> beginTagRegistration(String? name, String? locationType) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.NfcHostApi.beginTagRegistration$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[name, locationType]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -876,14 +843,12 @@ class NfcHostApi {
   }
 
   Future<NfcScanResult> beginTagScan() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.NfcHostApi.beginTagScan$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.NfcHostApi.beginTagScan$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -905,14 +870,12 @@ class NfcHostApi {
   }
 
   Future<void> cancelNfc() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.NfcHostApi.cancelNfc$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.NfcHostApi.cancelNfc$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -929,14 +892,12 @@ class NfcHostApi {
   }
 
   Future<List<NfcTagDto?>> getTags() async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.NfcHostApi.getTags$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.NfcHostApi.getTags$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(null) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -958,14 +919,12 @@ class NfcHostApi {
   }
 
   Future<void> deleteTag(String uuid) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.NfcHostApi.deleteTag$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.NfcHostApi.deleteTag$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[uuid]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
@@ -982,17 +941,14 @@ class NfcHostApi {
   }
 
   Future<void> renameTag(String uuid, String name, String? locationType) async {
-    final String pigeonVar_channelName =
-        'dev.flutter.pigeon.nfc_alarm.NfcHostApi.renameTag$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel =
-        BasicMessageChannel<Object?>(
-          pigeonVar_channelName,
-          pigeonChannelCodec,
-          binaryMessenger: pigeonVar_binaryMessenger,
-        );
-    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel.send(
-      <Object?>[uuid, name, locationType],
-    ) as List<Object?>?;
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.near_field.NfcHostApi.renameTag$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[uuid, name, locationType]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -1014,49 +970,32 @@ abstract class AlarmFlutterApi {
 
   void onAlarmStateChanged(String alarmId, String state);
 
-  static void setUp(
-    AlarmFlutterApi? api, {
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) {
-    messageChannelSuffix = messageChannelSuffix.isNotEmpty
-        ? '.$messageChannelSuffix'
-        : '';
+  static void setUp(AlarmFlutterApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
-      final BasicMessageChannel<Object?>
-      pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.nfc_alarm.AlarmFlutterApi.onAlarmStateChanged$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.near_field.AlarmFlutterApi.onAlarmStateChanged$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(
-            message != null,
-            'Argument for dev.flutter.pigeon.nfc_alarm.AlarmFlutterApi.onAlarmStateChanged was null.',
-          );
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.near_field.AlarmFlutterApi.onAlarmStateChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final String? arg_alarmId = (args[0] as String?);
-          assert(
-            arg_alarmId != null,
-            'Argument for dev.flutter.pigeon.nfc_alarm.AlarmFlutterApi.onAlarmStateChanged was null, expected non-null String.',
-          );
+          assert(arg_alarmId != null,
+              'Argument for dev.flutter.pigeon.near_field.AlarmFlutterApi.onAlarmStateChanged was null, expected non-null String.');
           final String? arg_state = (args[1] as String?);
-          assert(
-            arg_state != null,
-            'Argument for dev.flutter.pigeon.nfc_alarm.AlarmFlutterApi.onAlarmStateChanged was null, expected non-null String.',
-          );
+          assert(arg_state != null,
+              'Argument for dev.flutter.pigeon.near_field.AlarmFlutterApi.onAlarmStateChanged was null, expected non-null String.');
           try {
             api.onAlarmStateChanged(arg_alarmId!, arg_state!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
