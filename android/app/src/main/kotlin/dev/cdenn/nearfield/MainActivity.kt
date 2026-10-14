@@ -1,4 +1,4 @@
-package com.example.nfcalarm
+package dev.cdenn.nearfield
 
 import android.Manifest
 import android.content.Intent
@@ -13,18 +13,18 @@ import android.provider.OpenableColumns
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.nfcalarm.core.NfcManager
-import com.example.nfcalarm.core.SecurityManager
-import com.example.nfcalarm.data.NfcTagRecord
-import com.example.nfcalarm.data.NfcTagStore
-import com.example.nfcalarm.pigeon.AlarmBridge
-import com.example.nfcalarm.pigeon.AlarmFlutterApi
-import com.example.nfcalarm.pigeon.AlarmHostApi
-import com.example.nfcalarm.pigeon.AlarmHostApiImpl
-import com.example.nfcalarm.pigeon.NfcHostApi
-import com.example.nfcalarm.pigeon.NfcScanResult
-import com.example.nfcalarm.pigeon.NfcTagDto
-import com.example.nfcalarm.pigeon.SoundSelection
+import dev.cdenn.nearfield.core.NfcManager
+import dev.cdenn.nearfield.core.SecurityManager
+import dev.cdenn.nearfield.data.NfcTagRecord
+import dev.cdenn.nearfield.data.NfcTagStore
+import dev.cdenn.nearfield.pigeon.AlarmBridge
+import dev.cdenn.nearfield.pigeon.AlarmFlutterApi
+import dev.cdenn.nearfield.pigeon.AlarmHostApi
+import dev.cdenn.nearfield.pigeon.AlarmHostApiImpl
+import dev.cdenn.nearfield.pigeon.NfcHostApi
+import dev.cdenn.nearfield.pigeon.NfcScanResult
+import dev.cdenn.nearfield.pigeon.NfcTagDto
+import dev.cdenn.nearfield.pigeon.SoundSelection
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 

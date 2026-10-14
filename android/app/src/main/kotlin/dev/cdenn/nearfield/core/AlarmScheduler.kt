@@ -1,11 +1,11 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.example.nfcalarm.model.Alarm
+import dev.cdenn.nearfield.model.Alarm
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth

@@ -1,10 +1,10 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
-import com.example.nfcalarm.data.AlarmStore
+import dev.cdenn.nearfield.data.AlarmStore
 
 /**
  * Receives the exact-alarm broadcast, starts [AlarmService], and reschedules the

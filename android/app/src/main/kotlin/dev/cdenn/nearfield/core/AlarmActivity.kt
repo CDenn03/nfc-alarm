@@ -1,4 +1,4 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 
 import android.app.Activity
 import android.content.Intent
@@ -12,10 +12,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import com.example.nfcalarm.R
-import com.example.nfcalarm.data.AlarmStore
-import com.example.nfcalarm.data.NfcTagStore
-import com.example.nfcalarm.model.Alarm
+import dev.cdenn.nearfield.R
+import dev.cdenn.nearfield.data.AlarmStore
+import dev.cdenn.nearfield.data.NfcTagStore
+import dev.cdenn.nearfield.model.Alarm
 import java.util.Locale
 
 /**

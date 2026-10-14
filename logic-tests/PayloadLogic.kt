@@ -1,4 +1,4 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 import java.security.SecureRandom
 
 object PayloadLogic {

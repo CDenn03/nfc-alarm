@@ -1,9 +1,9 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.example.nfcalarm.data.AlarmStore
+import dev.cdenn.nearfield.data.AlarmStore
 
 /**
  * Re-registers all enabled alarms after events that wipe or invalidate pending

@@ -1,4 +1,4 @@
-package com.example.nfcalarm.model
+package dev.cdenn.nearfield.model
 
 /**
  * Full alarm model (Phase 4 adds NFC requirements + snooze config).

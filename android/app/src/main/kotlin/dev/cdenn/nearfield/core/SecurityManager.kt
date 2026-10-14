@@ -1,4 +1,4 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec

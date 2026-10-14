@@ -1,10 +1,10 @@
-package com.example.nfcalarm.data.room
+package dev.cdenn.nearfield.data.room
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.nfcalarm.data.NfcTagRecord
+import dev.cdenn.nearfield.data.NfcTagRecord
 
 /** OPTIONAL — see README-phase3.md. */
 @Database(entities = [NfcTagEntity::class], version = 1, exportSchema = false)

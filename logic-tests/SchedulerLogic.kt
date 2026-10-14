@@ -1,4 +1,4 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth

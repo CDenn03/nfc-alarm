@@ -1,4 +1,4 @@
-package com.example.nfcalarm.data.room
+package dev.cdenn.nearfield.data.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

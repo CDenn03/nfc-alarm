@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.nfcalarm"
+    namespace = "dev.cdenn.nearfield"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.nfcalarm"
+        applicationId = "dev.cdenn.nearfield"
         minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

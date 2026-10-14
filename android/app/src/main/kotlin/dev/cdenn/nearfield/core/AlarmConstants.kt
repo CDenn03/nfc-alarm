@@ -1,4 +1,4 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 
 object AlarmConstants {
     const val CHANNEL_ID = "nfc_alarm_active"
@@ -7,9 +7,9 @@ object AlarmConstants {
 
     const val EXTRA_ALARM_ID = "extra_alarm_id"
 
-    const val ACTION_ALARM_FIRE = "com.example.nfcalarm.ACTION_ALARM_FIRE"
-    const val ACTION_DISMISS = "com.example.nfcalarm.ACTION_DISMISS"
-    const val ACTION_SNOOZE = "com.example.nfcalarm.ACTION_SNOOZE"
+    const val ACTION_ALARM_FIRE = "dev.cdenn.nearfield.ACTION_ALARM_FIRE"
+    const val ACTION_DISMISS = "dev.cdenn.nearfield.ACTION_DISMISS"
+    const val ACTION_SNOOZE = "dev.cdenn.nearfield.ACTION_SNOOZE"
 
     const val CRESCENDO_SECONDS = 30
 

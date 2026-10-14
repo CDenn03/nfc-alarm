@@ -1,4 +1,4 @@
-package com.example.nfcalarm.pigeon
+package dev.cdenn.nearfield.pigeon
 
 /**
  * Process-wide holder for the Kotlin -> Flutter Pigeon client.

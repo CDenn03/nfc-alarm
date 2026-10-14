@@ -5,7 +5,7 @@
   the <receiver>/<service>/<activity> blocks go inside <application> alongside the
   Flutter MainActivity that `flutter create` generated.
 
-  Replace com.example.nfcalarm everywhere with your applicationId.
+  Replace dev.cdenn.nearfield everywhere with your applicationId.
 -->
 
 <!-- ===== permissions ===== -->

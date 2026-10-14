@@ -1,4 +1,4 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 import java.util.Calendar
 import java.security.SecureRandom
 import javax.crypto.Mac

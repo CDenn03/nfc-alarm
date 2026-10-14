@@ -1,4 +1,4 @@
-package com.example.nfcalarm.core
+package dev.cdenn.nearfield.core
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -12,8 +12,8 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
-import com.example.nfcalarm.data.AlarmStore
-import com.example.nfcalarm.pigeon.AlarmBridge
+import dev.cdenn.nearfield.data.AlarmStore
+import dev.cdenn.nearfield.pigeon.AlarmBridge
 
 class AlarmService : Service() {
 

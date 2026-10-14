@@ -1,4 +1,4 @@
-package com.example.nfcalarm.data
+package dev.cdenn.nearfield.data
 
 import android.content.Context
 import android.media.AudioAttributes

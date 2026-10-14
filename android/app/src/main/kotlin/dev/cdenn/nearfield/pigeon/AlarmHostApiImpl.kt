@@ -1,4 +1,4 @@
-package com.example.nfcalarm.pigeon
+package dev.cdenn.nearfield.pigeon
 
 import android.app.NotificationManager
 import android.content.Context
@@ -7,10 +7,10 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import android.provider.Settings
-import com.example.nfcalarm.core.AlarmScheduler
-import com.example.nfcalarm.data.AlarmStore
-import com.example.nfcalarm.data.SoundLibrary
-import com.example.nfcalarm.model.Alarm
+import dev.cdenn.nearfield.core.AlarmScheduler
+import dev.cdenn.nearfield.data.AlarmStore
+import dev.cdenn.nearfield.data.SoundLibrary
+import dev.cdenn.nearfield.model.Alarm
 import java.time.LocalDate
 import java.util.Calendar
 

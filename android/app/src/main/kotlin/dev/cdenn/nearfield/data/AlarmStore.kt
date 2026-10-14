@@ -1,7 +1,7 @@
-package com.example.nfcalarm.data
+package dev.cdenn.nearfield.data
 
 import android.content.Context
-import com.example.nfcalarm.model.Alarm
+import dev.cdenn.nearfield.model.Alarm
 import org.json.JSONArray
 import org.json.JSONObject
 

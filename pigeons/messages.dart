@@ -9,9 +9,9 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/pigeon/messages.g.dart',
     kotlinOut:
-        'android/app/src/main/kotlin/com/example/nfcalarm/pigeon/Messages.g.kt',
-    kotlinOptions: KotlinOptions(package: 'com.example.nfcalarm.pigeon'),
-    dartPackageName: 'nfc_alarm',
+        'android/app/src/main/kotlin/dev/cdenn/nearfield/pigeon/Messages.g.kt',
+    kotlinOptions: KotlinOptions(package: 'dev.cdenn.nearfield.pigeon'),
+    dartPackageName: 'near_field',
   ),
 )
 // ============ Alarms ============
