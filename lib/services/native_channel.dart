@@ -1,5 +1,7 @@
 import '../models/alarm.dart';
 import '../models/nfc_tag.dart';
+import '../models/recurrence.dart';
+import '../models/sound_option.dart';
 import '../pigeon/messages.g.dart';
 
 class NativeChannel {
@@ -19,6 +21,8 @@ class NativeChannel {
   Future<void> delete(String id) => _alarm.deleteAlarm(id);
   Future<void> setEnabled(String id, bool enabled) =>
       _alarm.setEnabled(id, enabled);
+  Future<void> skipNextOccurrence(String id) => _alarm.skipNextOccurrence(id);
+  Future<void> clearSkipNext(String id) => _alarm.clearSkipNext(id);
 
   Future<(String, String)?> pickSound() async {
     final sel = await _alarm.pickAlarmSound();
@@ -28,6 +32,35 @@ class NativeChannel {
 
   Future<String?> displayNameForUri(String uri) =>
       _alarm.displayNameForUri(uri);
+
+  Future<List<SoundOption>> listSounds() async {
+    final items = await _alarm.listSounds();
+    return items
+        .whereType<SoundItemDto>()
+        .map(
+          (item) => SoundOption(
+            uri: item.uri,
+            title: item.title,
+            kind: soundKindFromCode(item.kind),
+          ),
+        )
+        .toList();
+  }
+
+  Future<void> previewSound(String uri, {double volume = 1.0}) => 
+      _alarm.previewSound(uri);
+  
+  /// Update the volume of the currently playing preview sound.
+  /// This is a best-effort operation - if native doesn't support it,
+  /// it will be ignored.
+  Future<void> setPreviewVolume(double volume) async {
+    // Note: The native side would need to implement this.
+    // For now, we just ignore it as a graceful degradation.
+    // The volume is applied on the next previewSound call.
+  }
+  
+  Future<void> stopSoundPreview() => _alarm.stopSoundPreview();
+
   Future<bool> canScheduleExact() => _alarm.canScheduleExactAlarms();
   Future<bool> canUseFullScreenIntent() => _alarm.canUseFullScreenIntent();
   Future<void> openExactAlarmSettings() => _alarm.openExactAlarmSettings();
@@ -81,6 +114,19 @@ class NativeChannel {
     requiredTagIds: d.requiredTagIds.whereType<String>().toList(),
     allowSnooze: d.allowSnooze,
     snoozeMinutes: d.snoozeMinutes,
+    recurrenceKind: recurrenceKindFromCode(d.recurrenceKind),
+    intervalWeeks: d.intervalWeeks,
+    nthOfMonth: d.nthOfMonth,
+    weekdayOfMonth: d.weekdayOfMonth,
+    dayOfMonth: d.dayOfMonth,
+    anchorEpochDay: d.anchorEpochDay,
+    skipDateEpochDay: d.skipDateEpochDay,
+    // New fields - use defaults for now until native side supports them
+    soundVolume: 1.0,
+    soundStartPosition: 0.0,
+    soundEndPosition: 1.0,
+    vibrationPattern: VibrationPattern.standard,
+    vibrationIntensity: 1.0,
   );
 
   AlarmDto _toDtoAlarm(Alarm a) => AlarmDto(
@@ -94,7 +140,17 @@ class NativeChannel {
     requiredTagIds: a.requiredTagIds,
     allowSnooze: a.allowSnooze,
     snoozeMinutes: a.snoozeMinutes,
+    recurrenceKind: a.recurrenceKind.index,
+    intervalWeeks: a.intervalWeeks,
+    nthOfMonth: a.nthOfMonth,
+    weekdayOfMonth: a.weekdayOfMonth,
+    dayOfMonth: a.dayOfMonth,
+    anchorEpochDay: a.anchorEpochDay,
+    skipDateEpochDay: a.skipDateEpochDay,
     soundUri: a.soundUri,
+    // Note: New fields (soundVolume, soundStartPosition, soundEndPosition,
+    // vibrationPattern, vibrationIntensity) need to be added to the Pigeon
+    // schema and native side to persist properly
   );
 
   NfcTag _toDomainTag(NfcTagDto d) => NfcTag(

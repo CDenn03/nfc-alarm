@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 import '../models/alarm.dart';
 import '../providers/alarm_provider.dart';
 import '../providers/tag_provider.dart';
+import '../theme/nothing_colors.dart';
+import '../theme/nothing_motion.dart';
+import '../theme/nothing_typography.dart';
 import '../widgets/alarm_list_item.dart';
+import '../widgets/dot_matrix_text.dart';
+import '../widgets/nothing_ui.dart';
 import 'alarm_edit_screen.dart';
 import 'tag_manager_screen.dart';
 
@@ -33,7 +38,7 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
 
   Future<void> _openEditor([Alarm? existing]) async {
     final result = await Navigator.of(context).push<AlarmEditResult>(
-      MaterialPageRoute(
+      _SlidePageRoute(
         builder: (_) => AlarmEditScreen(
           provider: widget.alarmProvider,
           alarm: existing ?? Alarm.blank(),
@@ -52,7 +57,7 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
 
   void _openTags() {
     Navigator.of(context).push(
-      MaterialPageRoute(
+      _SlidePageRoute(
         builder: (_) => TagManagerScreen(provider: widget.tagProvider),
       ),
     );
@@ -62,17 +67,21 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Alarms'),
+        title: const Text('ALARMS'),
         actions: [
-          IconButton(
-            tooltip: 'NFC tags',
-            onPressed: _openTags,
-            icon: const Icon(Icons.nfc),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: NothingCircleButton(
+              icon: Icons.nfc,
+              tooltip: 'NFC tags',
+              onPressed: _openTags,
+            ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openEditor(),
+        tooltip: 'Add alarm',
         child: const Icon(Icons.add),
       ),
       body: ListenableBuilder(
@@ -80,43 +89,272 @@ class _AlarmListScreenState extends State<AlarmListScreen> {
         builder: (context, _) {
           final provider = widget.alarmProvider;
           if (provider.loading && provider.alarms.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+              children: [
+                for (var i = 0; i < 4; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: NothingEntrance(
+                      index: i,
+                      child: const NothingSkeletonPanel(),
+                    ),
+                  ),
+              ],
+            );
           }
           if (provider.loadError != null && provider.alarms.isEmpty) {
             return Center(
-              child: FilledButton.icon(
-                onPressed: provider.load,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry loading alarms'),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: NothingPanel(
+                  padding: const EdgeInsets.all(22),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const NothingSectionLabel('Load failed'),
+                      const SizedBox(height: 14),
+                      Text(
+                        'Your alarms could not be read from the device.',
+                        style: NothingTypography.bodyMedium.copyWith(
+                          color: NothingColors.inkMuted,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: provider.load,
+                          icon: const Icon(Icons.refresh, size: 18),
+                          label: const Text('RETRY'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             );
           }
+
+          // Group alarms by state
+          final activeAlarms = provider.alarms
+              .where((a) => a.enabled && !a.isSkippingNext)
+              .toList();
+          final pausedAlarms = provider.alarms
+              .where((a) => a.enabled && a.isSkippingNext)
+              .toList();
+          final disabledAlarms = provider.alarms
+              .where((a) => !a.enabled)
+              .toList();
+
           return RefreshIndicator(
+            color: NothingColors.red,
+            backgroundColor: NothingColors.surface,
             onRefresh: provider.load,
             child: ListView(
               children: [
                 if (provider.hasPermissionWarning)
                   _PermissionBanner(provider: provider),
                 if (provider.alarms.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 120),
-                    child: Center(
-                      child: Text('No alarms yet. Tap + to add one.'),
+                  const _EmptyState()
+                else ...[
+                  // Active alarms section
+                  if (activeAlarms.isNotEmpty) ...[
+                    _SectionHeader(
+                      title: 'Active',
+                      count: activeAlarms.length,
+                      icon: Icons.alarm_on,
+                      color: NothingColors.red,
                     ),
-                  )
-                else
-                  for (final alarm in provider.alarms)
-                    AlarmListItem(
-                      alarm: alarm,
-                      onTap: () => _openEditor(alarm),
-                      onToggle: (enabled) =>
-                          provider.setEnabled(alarm, enabled),
+                    _AlarmSection(
+                      alarms: activeAlarms,
+                      provider: provider,
+                      onTap: _openEditor,
+                      startIndex: 0,
                     ),
+                  ],
+
+                  // Paused alarms section
+                  if (pausedAlarms.isNotEmpty) ...[
+                    _SectionHeader(
+                      title: 'Paused',
+                      count: pausedAlarms.length,
+                      icon: Icons.pause_circle_outline,
+                      color: NothingColors.inkMuted,
+                      subtitle: 'Skipping next occurrence',
+                    ),
+                    _AlarmSection(
+                      alarms: pausedAlarms,
+                      provider: provider,
+                      onTap: _openEditor,
+                      startIndex: activeAlarms.length,
+                    ),
+                  ],
+
+                  // Disabled alarms section
+                  if (disabledAlarms.isNotEmpty) ...[
+                    _SectionHeader(
+                      title: 'Disabled',
+                      count: disabledAlarms.length,
+                      icon: Icons.alarm_off,
+                      color: NothingColors.outline,
+                    ),
+                    _AlarmSection(
+                      alarms: disabledAlarms,
+                      provider: provider,
+                      onTap: _openEditor,
+                      startIndex: activeAlarms.length + pausedAlarms.length,
+                      muted: true,
+                    ),
+                  ],
+                ],
                 const SizedBox(height: 88),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    required this.count,
+    required this.icon,
+    required this.color,
+    this.subtitle,
+  });
+
+  final String title;
+  final int count;
+  final IconData icon;
+  final Color color;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 20, 22, 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      title.toUpperCase(),
+                      style: NothingTypography.labelMedium.copyWith(
+                        color: color,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: NothingTypography.labelSmall.copyWith(
+                          color: color,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    style: NothingTypography.labelSmall.copyWith(
+                      color: NothingColors.inkMuted,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AlarmSection extends StatelessWidget {
+  const _AlarmSection({
+    required this.alarms,
+    required this.provider,
+    required this.onTap,
+    required this.startIndex,
+    this.muted = false,
+  });
+
+  final List<Alarm> alarms;
+  final AlarmProvider provider;
+  final void Function(Alarm) onTap;
+  final int startIndex;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var i = 0; i < alarms.length; i++)
+          NothingEntrance(
+            key: ValueKey(alarms[i].id),
+            index: startIndex + i,
+            child: AnimatedOpacity(
+              duration: NothingMotion.standard,
+              opacity: muted ? 0.6 : 1.0,
+              child: AlarmListItem(
+                alarm: alarms[i],
+                onTap: () => onTap(alarms[i]),
+                onToggle: (enabled) => provider.setEnabled(alarms[i], enabled),
+                onToggleSkip: (skip) => provider.setSkipNext(alarms[i], skip),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 56, 16, 0),
+      child: NothingPanel(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+        child: Column(
+          children: [
+            const DotMatrixText(
+              'NO ALARMS',
+              style: TextStyle(fontSize: 20, color: NothingColors.ink),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              'Tap the red button to create your first alarm.',
+              textAlign: TextAlign.center,
+              style: NothingTypography.bodyMedium.copyWith(
+                color: NothingColors.inkMuted,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -129,7 +367,6 @@ class _PermissionBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final issues = <(String, VoidCallback)>[
       if (!provider.notificationsOk)
         (
@@ -148,35 +385,89 @@ class _PermissionBanner extends StatelessWidget {
         ),
     ];
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final (message, action) in issues)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      message,
-                      style: TextStyle(
-                        color: theme.colorScheme.onErrorContainer,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+      child: NothingPanel(
+        borderColor: NothingColors.red,
+        padding: const EdgeInsets.fromLTRB(18, 16, 14, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            NothingSectionLabel(
+              'Permissions',
+              trailing: '${issues.length} to fix',
+            ),
+            const SizedBox(height: 12),
+            for (final (message, action) in issues)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        message,
+                        style: NothingTypography.bodySmall.copyWith(
+                          color: NothingColors.ink,
+                        ),
                       ),
                     ),
-                  ),
-                  TextButton(onPressed: action, child: const Text('Fix')),
-                ],
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: action,
+                      style: TextButton.styleFrom(
+                        foregroundColor: NothingColors.red,
+                      ),
+                      child: const Text('FIX'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
+}
+
+/// Custom slide page route with smooth animations
+class _SlidePageRoute<T> extends PageRouteBuilder<T> {
+  _SlidePageRoute({required this.builder})
+      : super(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              builder(context),
+          transitionDuration: NothingMotion.emphasized,
+          reverseTransitionDuration: NothingMotion.standard,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // Check for reduced motion preference
+            if (MediaQuery.disableAnimationsOf(context)) {
+              return child;
+            }
+
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: NothingMotion.curve,
+              reverseCurve: NothingMotion.curveIn,
+            );
+
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(curvedAnimation),
+              child: FadeTransition(
+                opacity: Tween<double>(
+                  begin: 0.0,
+                  end: 1.0,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+                )),
+                child: child,
+              ),
+            );
+          },
+        );
+
+  final WidgetBuilder builder;
 }
