@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
+import dev.cdenn.nearfield.R
 import dev.cdenn.nearfield.data.AlarmStore
 import dev.cdenn.nearfield.pigeon.AlarmBridge
 
@@ -113,7 +114,7 @@ class AlarmService : Service() {
         return NotificationCompat.Builder(this, AlarmConstants.CHANNEL_ID)
             .setContentTitle(label)
             .setContentText("Tap to open alarm")
-            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setSmallIcon(R.drawable.ic_stat_near_field)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setOngoing(true)
