@@ -7,7 +7,7 @@ import '../theme/nothing_colors.dart';
 import '../theme/nothing_motion.dart';
 import '../theme/nothing_typography.dart';
 import '../widgets/alarm_list_item.dart';
-import '../widgets/dot_matrix_text.dart';
+import '../widgets/near_field_mark.dart';
 import '../widgets/nothing_ui.dart';
 import 'alarm_edit_screen.dart';
 import 'tag_manager_screen.dart';
@@ -341,11 +341,15 @@ class _EmptyState extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
         child: Column(
           children: [
-            const DotMatrixText(
-              'NO ALARMS',
-              style: TextStyle(fontSize: 20, color: NothingColors.ink),
+            const NearFieldStackedWordmark(width: 184),
+            const SizedBox(height: 24),
+            Text(
+              'NO ALARMS YET',
+              style: NothingTypography.labelLarge.copyWith(
+                color: NothingColors.ink,
+              ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 10),
             Text(
               'Tap the red button to create your first alarm.',
               textAlign: TextAlign.center,
@@ -433,41 +437,40 @@ class _PermissionBanner extends StatelessWidget {
 /// Custom slide page route with smooth animations
 class _SlidePageRoute<T> extends PageRouteBuilder<T> {
   _SlidePageRoute({required this.builder})
-      : super(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              builder(context),
-          transitionDuration: NothingMotion.emphasized,
-          reverseTransitionDuration: NothingMotion.standard,
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            // Check for reduced motion preference
-            if (MediaQuery.disableAnimationsOf(context)) {
-              return child;
-            }
+    : super(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            builder(context),
+        transitionDuration: NothingMotion.emphasized,
+        reverseTransitionDuration: NothingMotion.standard,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          // Check for reduced motion preference
+          if (MediaQuery.disableAnimationsOf(context)) {
+            return child;
+          }
 
-            final curvedAnimation = CurvedAnimation(
-              parent: animation,
-              curve: NothingMotion.curve,
-              reverseCurve: NothingMotion.curveIn,
-            );
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: NothingMotion.curve,
+            reverseCurve: NothingMotion.curveIn,
+          );
 
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1.0, 0.0),
-                end: Offset.zero,
-              ).animate(curvedAnimation),
-              child: FadeTransition(
-                opacity: Tween<double>(
-                  begin: 0.0,
-                  end: 1.0,
-                ).animate(CurvedAnimation(
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(curvedAnimation),
+            child: FadeTransition(
+              opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+                CurvedAnimation(
                   parent: animation,
                   curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
-                )),
-                child: child,
+                ),
               ),
-            );
-          },
-        );
+              child: child,
+            ),
+          );
+        },
+      );
 
   final WidgetBuilder builder;
 }
